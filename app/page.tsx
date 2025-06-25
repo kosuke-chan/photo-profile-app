@@ -8,7 +8,7 @@ type Photo = {
   src: string;
   title: string;
   description: string;
-  category: string;
+  category: string[];
 };
 
 const photos: Photo[] = [
