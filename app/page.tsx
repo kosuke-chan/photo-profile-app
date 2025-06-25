@@ -24,49 +24,49 @@ const photos: Photo[] = [
     src: '/DSC04116.jpg',
     title: '木と光',
     description: '木漏れ日に包まれた優しい森の道。',
-    category: 'nature',
+    category: ['nature']
   },
   {
     id: 3,
     src: '/DSC06864-1-6.jpg',
     title: '街と夕日',
     description: '暮れゆく街並みに沈む太陽。',
-    category: 'street',
+    category: ['street']
   },
   {
     id: 4,
     src: '/DSC07101-Pano-1-3.jpg',
     title: '机と光',
     description: '自宅の窓辺に射す穏やかな朝日。',
-    category: 'home',
+    category: ['home']
   },
   {
     id: 5,
     src: '/DSC08226-1-2.jpg',
     title: '影と壁',
     description: 'モノクロの世界に差し込む光と陰。',
-    category: 'nature',
+    category: ['nature']
   },
   {
     id: 6,
     src: '/DSC09252.jpg',
     title: '影と壁',
     description: 'モノクロの世界に差し込む光と陰。',
-    category: 'nature',
+    category: ['nature']
   },
   {
     id: 7,
     src: '/DSC09274.jpg',
     title: '影と壁',
     description: 'モノクロの世界に差し込む光と陰。',
-    category: 'nature',
+    category: ['nature']
   },
   {
     id: 8,
     src: '/DSC07434.jpg',
     title: '影と壁',
     description: 'モノクロの世界に差し込む光と陰。',
-    category: 'home',
+    category: ['home']
   },
 ];
 
