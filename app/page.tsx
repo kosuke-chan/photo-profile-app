@@ -11,6 +11,8 @@ type Photo = {
   category: string[];
 };
 
+const SHOW_TITLES_AND_DESCRIPTIONS = false;
+
 const photos: Photo[] = [
   {
     id: 1,
@@ -124,8 +126,12 @@ export default function Home() {
                   setOpen(true);
                 }}
               />
-              <h2 className="text-xl font-serif text-gray-800 mb-1">{photo.title}</h2>
-              <p className="text-sm text-gray-500">{photo.description}</p>
+              {SHOW_TITLES_AND_DESCRIPTIONS && (
+                <>
+                  <h2 className="text-xl font-serif text-gray-800 mb-1">{photo.title}</h2>
+                  <p className="text-sm text-gray-500">{photo.description}</p>
+                </>
+              )}
             </div>
           ))}
         </section>
@@ -153,9 +159,11 @@ export default function Home() {
                   alt={filteredPhotos[index].title}
                   className="max-w-3xl w-full mb-4 rounded shadow-lg"
                 />
-                <h2 className="text-xl font-serif text-gray-800">
-                  {filteredPhotos[index].title}
-                </h2>
+                {SHOW_TITLES_AND_DESCRIPTIONS && (
+                  <h2 className="text-xl font-serif text-gray-800">
+                    {filteredPhotos[index].title}
+                  </h2>
+                )}
               </motion.div>
             </motion.div>
           )}
