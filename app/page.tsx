@@ -30,7 +30,7 @@ const photos: Photo[] = [
   },
   {
     id: 3,
-    src: '/DSC06864-1-6.jpg',
+    src: '/DSC06864.jpg',
     title: '街と夕日',
     description: '暮れゆく街並みに沈む太陽。',
     category: ['street'],
@@ -44,7 +44,7 @@ const photos: Photo[] = [
   },
   {
     id: 5,
-    src: '/DSC08226-1-2.jpg',
+    src: '/DSC08226-3.jpg',
     title: '影と壁',
     description: 'モノクロの世界に差し込む光と陰。',
     category: ['nature'],
@@ -70,6 +70,100 @@ const photos: Photo[] = [
     description: 'モノクロの世界に差し込む光と陰。',
     category: ['home'],
   },
+{
+  id: 9,
+  src: '/R0002922-3.jpg',
+  title: '',
+  description: '',
+  category: ['nature'],
+},
+{
+  id: 10,
+  src: '/DSC07148.jpg',
+  title: '',
+  description: '',
+  category: ['nature'],
+},
+{
+  id: 11,
+  src: '/R0000584-2.jpg',
+  title: '',
+  description: '',
+  category: ['nature'],
+},
+{
+  id: 12,
+  src: '/DSC09903.jpg',
+  title: '',
+  description: '',
+  category: ['nature'],
+},
+{
+  id: 13,
+  src: '/R0002946-Edit-3.jpg',
+  title: '',
+  description: '',
+  category: ['nature'],
+},
+{
+  id: 14,
+  src: '/DSC07260-Edit.jpg',
+  title: '',
+  description: '',
+  category: ['nature'],
+},
+{
+  id: 15,
+  src: '/DSC09238-Edit-3.jpg',
+  title: '',
+  description: '',
+  category: ['nature'],
+},
+{
+  id: 16,
+  src: '/DSC03614.jpg',
+  title: '',
+  description: '',
+  category: ['nature'],
+},
+{
+  id: 17,
+  src: '/DSC00324-Edit.jpg',
+  title: '',
+  description: '',
+  category: ['nature'],
+},
+{
+  id: 18,
+  src: '/DSC04869.jpg',
+  title: '',
+  description: '',
+  category: ['nature'],
+},
+{
+  id: 19,
+  src: '/DSC06613-2.jpg',
+  title: '',
+  description: '',
+  category: ['nature'],
+},
+{
+  id: 20,
+  src: '/DSC03627-Edit-4.jpg',
+  title: '',
+  description: '',
+  category: ['nature'],
+},
+{
+  id: 21,
+  src: '/DSC00140-2.jpg',
+  title: '',
+  description: '',
+  category: ['nature'],
+},
+
+
+
 ];
 
 const categories = ['all', 'nature', 'monochrome', 'street', 'home'];
