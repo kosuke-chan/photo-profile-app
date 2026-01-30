@@ -3,6 +3,9 @@
 import { useState, FormEvent } from 'react';
 import { motion } from 'framer-motion';
 import { upload } from '@vercel/blob/client';
+import imageCompression from 'browser-image-compression';
+
+const AVAILABLE_CATEGORIES = ['nature', 'monochrome', 'street', 'home', 'portrait', 'landscape'];
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -10,12 +13,15 @@ export default function AdminPage() {
   const [authError, setAuthError] = useState('');
   
   const [file, setFile] = useState<File | null>(null);
+  const [compressedFile, setCompressedFile] = useState<File | null>(null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [categories, setCategories] = useState('nature');
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(['nature']);
+  const [order, setOrder] = useState<number>(0);
   const [uploading, setUploading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState('');
   const [preview, setPreview] = useState<string | null>(null);
+  const [compressionStatus, setCompressionStatus] = useState('');
 
   const handleLogin = (e: FormEvent) => {
     e.preventDefault();
@@ -28,29 +34,60 @@ export default function AdminPage() {
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
       setFile(selectedFile);
+      setCompressionStatus('画像を圧縮中...');
+      
       // プレビュー表示
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreview(reader.result as string);
       };
       reader.readAsDataURL(selectedFile);
+
+      // 画像を圧縮（10MB以内）
+      try {
+        const options = {
+          maxSizeMB: 10,
+          maxWidthOrHeight: 4096,
+          useWebWorker: true,
+          fileType: selectedFile.type,
+        };
+        
+        const compressed = await imageCompression(selectedFile, options);
+        setCompressedFile(compressed);
+        
+        const originalSizeMB = (selectedFile.size / 1024 / 1024).toFixed(2);
+        const compressedSizeMB = (compressed.size / 1024 / 1024).toFixed(2);
+        setCompressionStatus(`圧縮完了: ${originalSizeMB}MB → ${compressedSizeMB}MB`);
+      } catch (error) {
+        console.error('Compression error:', error);
+        setCompressedFile(selectedFile);
+        setCompressionStatus('圧縮をスキップしました');
+      }
     }
+  };
+
+  const toggleCategory = (category: string) => {
+    setSelectedCategories(prev => 
+      prev.includes(category)
+        ? prev.filter(c => c !== category)
+        : [...prev, category]
+    );
   };
 
   const handleUpload = async (e: FormEvent) => {
     e.preventDefault();
-    if (!file) return;
+    if (!compressedFile) return;
 
     setUploading(true);
     setUploadStatus('アップロード中...');
 
     try {
       // 1. クライアント側から直接Blobにアップロード
-      const newBlob = await upload(file.name, file, {
+      const newBlob = await upload(compressedFile.name, compressedFile, {
         access: 'public',
         handleUploadUrl: '/api/upload',
         clientPayload: JSON.stringify({}),
@@ -70,7 +107,8 @@ export default function AdminPage() {
           blobUrl: newBlob.url,
           title,
           description,
-          categories,
+          categories: selectedCategories.join(','),
+          order,
         }),
       });
 
@@ -78,10 +116,13 @@ export default function AdminPage() {
         setUploadStatus('✓ アップロード成功！');
         // フォームをリセット
         setFile(null);
+        setCompressedFile(null);
         setTitle('');
         setDescription('');
-        setCategories('nature');
+        setSelectedCategories(['nature']);
+        setOrder(0);
         setPreview(null);
+        setCompressionStatus('');
         setTimeout(() => setUploadStatus(''), 3000);
       } else {
         const error = await metadataResponse.json();
@@ -155,6 +196,9 @@ export default function AdminPage() {
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400"
                 required
               />
+              {compressionStatus && (
+                <p className="text-xs text-gray-500 mt-1">{compressionStatus}</p>
+              )}
             </div>
 
             {/* プレビュー */}
@@ -196,24 +240,50 @@ export default function AdminPage() {
               />
             </div>
 
-            {/* カテゴリ */}
+            {/* カテゴリ（チェックボックス） */}
             <div>
               <label className="block text-sm text-gray-600 mb-2">
-                カテゴリ（カンマ区切り）
+                カテゴリ（複数選択可）
+              </label>
+              <div className="grid grid-cols-2 gap-3">
+                {AVAILABLE_CATEGORIES.map((category) => (
+                  <label
+                    key={category}
+                    className="flex items-center space-x-2 cursor-pointer"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedCategories.includes(category)}
+                      onChange={() => toggleCategory(category)}
+                      className="w-4 h-4 text-gray-800 border-gray-300 rounded focus:ring-gray-400"
+                    />
+                    <span className="text-sm text-gray-700">{category}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* 表示順序 */}
+            <div>
+              <label className="block text-sm text-gray-600 mb-2">
+                表示順序（数字が小さいほど上に表示）
               </label>
               <input
-                type="text"
-                value={categories}
-                onChange={(e) => setCategories(e.target.value)}
+                type="number"
+                value={order}
+                onChange={(e) => setOrder(Number(e.target.value))}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400"
-                placeholder="例: nature, monochrome"
+                placeholder="0"
               />
+              <p className="text-xs text-gray-500 mt-1">
+                例: 0が最初、1が2番目、2が3番目...
+              </p>
             </div>
 
             {/* アップロードボタン */}
             <button
               type="submit"
-              disabled={!file || uploading}
+              disabled={!compressedFile || uploading}
               className="w-full bg-gray-800 text-white py-3 rounded-lg hover:bg-gray-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
               {uploading ? 'アップロード中...' : 'アップロード'}

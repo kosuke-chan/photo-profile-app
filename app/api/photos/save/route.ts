@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { blobUrl, title, description, categories } = body;
+    const { blobUrl, title, description, categories, order } = body;
 
     if (!blobUrl) {
       return NextResponse.json({ error: 'Blob URLが必要です' }, { status: 400 });
@@ -34,9 +34,13 @@ export async function POST(request: NextRequest) {
       title: title || '',
       description: description || '',
       category: categories ? categories.split(',').map((c: string) => c.trim()) : ['nature'],
+      order: order !== undefined ? order : photos.length,
     };
 
     photos.push(newPhoto);
+
+    // orderでソート
+    photos.sort((a: any, b: any) => a.order - b.order);
 
     // 更新された写真データをBlobに保存
     await put('photos.json', JSON.stringify(photos, null, 2), {

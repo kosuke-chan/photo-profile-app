@@ -171,7 +171,13 @@ export default function Home() {
         const response = await fetch('/api/photos');
         const data = await response.json();
         if (data.length > 0) {
-          setPhotos(data);
+          // orderでソート
+          const sortedPhotos = data.sort((a: Photo, b: Photo) => {
+            const orderA = a.order !== undefined ? a.order : 999;
+            const orderB = b.order !== undefined ? b.order : 999;
+            return orderA - orderB;
+          });
+          setPhotos(sortedPhotos);
         }
       } catch (error) {
         console.error('Failed to fetch photos:', error);
@@ -237,7 +243,9 @@ export default function Home() {
                   <img
                     src={photo.src}
                     alt={photo.title}
+                    loading="lazy"
                     className="w-full max-w-md mx-auto rounded-lg shadow-md mb-4 cursor-pointer"
+                    style={{ maxHeight: '600px', objectFit: 'contain' }}
                     onClick={() => {
                       setIndex(i);
                       setOpen(true);
