@@ -22,6 +22,7 @@ export async function PUT(request: NextRequest) {
     await put('photos.json', JSON.stringify(photos, null, 2), {
       access: 'public',
       contentType: 'application/json',
+      addRandomSuffix: false,
     });
 
     return NextResponse.json({ success: true });
@@ -74,6 +75,7 @@ export async function DELETE(request: NextRequest) {
     await put('photos.json', JSON.stringify(photos, null, 2), {
       access: 'public',
       contentType: 'application/json',
+      addRandomSuffix: false,
     });
 
     return NextResponse.json({ success: true });

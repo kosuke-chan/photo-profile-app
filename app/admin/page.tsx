@@ -37,7 +37,6 @@ export default function AdminPage() {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
       setFile(selectedFile);
-      setCompressionStatus('画像を圧縮中...');
       
       // プレビュー表示
       const reader = new FileReader();
@@ -46,25 +45,34 @@ export default function AdminPage() {
       };
       reader.readAsDataURL(selectedFile);
 
-      // 画像を圧縮（10MB以内）
-      try {
-        const options = {
-          maxSizeMB: 10,
-          maxWidthOrHeight: 4096,
-          useWebWorker: true,
-          fileType: selectedFile.type,
-        };
+      const fileSizeMB = selectedFile.size / 1024 / 1024;
+
+      // 10MB以上のファイルのみ圧縮
+      if (fileSizeMB > 10) {
+        setCompressionStatus('画像を圧縮中...');
         
-        const compressed = await imageCompression(selectedFile, options);
-        setCompressedFile(compressed);
-        
-        const originalSizeMB = (selectedFile.size / 1024 / 1024).toFixed(2);
-        const compressedSizeMB = (compressed.size / 1024 / 1024).toFixed(2);
-        setCompressionStatus(`圧縮完了: ${originalSizeMB}MB → ${compressedSizeMB}MB`);
-      } catch (error) {
-        console.error('Compression error:', error);
+        try {
+          const options = {
+            maxSizeMB: 10,
+            maxWidthOrHeight: 4096,
+            useWebWorker: true,
+            fileType: selectedFile.type,
+          };
+          
+          const compressed = await imageCompression(selectedFile, options);
+          setCompressedFile(compressed);
+          
+          const compressedSizeMB = (compressed.size / 1024 / 1024).toFixed(2);
+          setCompressionStatus(`圧縮完了: ${fileSizeMB.toFixed(2)}MB → ${compressedSizeMB}MB`);
+        } catch (error) {
+          console.error('Compression error:', error);
+          setCompressedFile(selectedFile);
+          setCompressionStatus('圧縮をスキップしました');
+        }
+      } else {
+        // 10MB以下はそのまま使用
         setCompressedFile(selectedFile);
-        setCompressionStatus('圧縮をスキップしました');
+        setCompressionStatus(`ファイルサイズ: ${fileSizeMB.toFixed(2)}MB（圧縮不要）`);
       }
     }
   };

@@ -44,6 +44,7 @@ export async function POST(request: NextRequest) {
     await put('photos.json', JSON.stringify(photos, null, 2), {
       access: 'public',
       contentType: 'application/json',
+      addRandomSuffix: false,
     });
 
     return NextResponse.json({ success: true, photo: newPhoto });
