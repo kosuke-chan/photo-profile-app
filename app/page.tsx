@@ -14,6 +14,7 @@ const fallbackPhotos: Photo[] = [
     title: '空と雲',
     description: '静かな午後、空の色が移ろう時間。',
     category: ['nature', 'monochrome'],
+    order: 0,
   },
   {
     id: 2,
@@ -21,6 +22,7 @@ const fallbackPhotos: Photo[] = [
     title: '木と光',
     description: '木漏れ日に包まれた優しい森の道。',
     category: ['nature'],
+    order: 1,
   },
   {
     id: 3,
@@ -28,6 +30,7 @@ const fallbackPhotos: Photo[] = [
     title: '街と夕日',
     description: '暮れゆく街並みに沈む太陽。',
     category: ['street'],
+    order: 2,
   },
   {
     id: 4,
@@ -35,6 +38,7 @@ const fallbackPhotos: Photo[] = [
     title: '机と光',
     description: '自宅の窓辺に射す穏やかな朝日。',
     category: ['home'],
+    order: 3,
   },
   {
     id: 5,
@@ -42,6 +46,7 @@ const fallbackPhotos: Photo[] = [
     title: '影と壁',
     description: 'モノクロの世界に差し込む光と陰。',
     category: ['nature'],
+    order: 4,
   },
   {
     id: 6,
@@ -49,6 +54,7 @@ const fallbackPhotos: Photo[] = [
     title: '影と壁',
     description: 'モノクロの世界に差し込む光と陰。',
     category: ['nature'],
+    order: 5,
   },
   {
     id: 7,
@@ -56,6 +62,7 @@ const fallbackPhotos: Photo[] = [
     title: '影と壁',
     description: 'モノクロの世界に差し込む光と陰。',
     category: ['nature'],
+    order: 6,
   },
   {
     id: 8,
@@ -63,6 +70,7 @@ const fallbackPhotos: Photo[] = [
     title: '影と壁',
     description: 'モノクロの世界に差し込む光と陰。',
     category: ['home'],
+    order: 7,
   },
   {
     id: 9,
@@ -70,6 +78,7 @@ const fallbackPhotos: Photo[] = [
     title: '',
     description: '',
     category: ['nature'],
+    order: 8,
   },
   {
     id: 10,
@@ -77,6 +86,7 @@ const fallbackPhotos: Photo[] = [
     title: '',
     description: '',
     category: ['nature'],
+    order: 9,
   },
   {
     id: 11,
@@ -84,6 +94,7 @@ const fallbackPhotos: Photo[] = [
     title: '',
     description: '',
     category: ['nature'],
+    order: 10,
   },
   {
     id: 12,
@@ -91,6 +102,7 @@ const fallbackPhotos: Photo[] = [
     title: '',
     description: '',
     category: ['nature'],
+    order: 11,
   },
   {
     id: 13,
@@ -98,6 +110,7 @@ const fallbackPhotos: Photo[] = [
     title: '',
     description: '',
     category: ['nature'],
+    order: 12,
   },
   {
     id: 14,
@@ -105,6 +118,7 @@ const fallbackPhotos: Photo[] = [
     title: '',
     description: '',
     category: ['nature'],
+    order: 13,
   },
   {
     id: 15,
@@ -112,6 +126,7 @@ const fallbackPhotos: Photo[] = [
     title: '',
     description: '',
     category: ['nature'],
+    order: 14,
   },
   {
     id: 16,
@@ -119,6 +134,7 @@ const fallbackPhotos: Photo[] = [
     title: '',
     description: '',
     category: ['nature'],
+    order: 15,
   },
   {
     id: 17,
@@ -126,6 +142,7 @@ const fallbackPhotos: Photo[] = [
     title: '',
     description: '',
     category: ['nature'],
+    order: 16,
   },
   {
     id: 18,
@@ -133,6 +150,7 @@ const fallbackPhotos: Photo[] = [
     title: '',
     description: '',
     category: ['nature'],
+    order: 17,
   },
   {
     id: 19,
@@ -140,6 +158,7 @@ const fallbackPhotos: Photo[] = [
     title: '',
     description: '',
     category: ['nature'],
+    order: 18,
   },
   {
     id: 20,
@@ -147,6 +166,7 @@ const fallbackPhotos: Photo[] = [
     title: '',
     description: '',
     category: ['nature'],
+    order: 19,
   },
   {
     id: 21,
@@ -154,6 +174,7 @@ const fallbackPhotos: Photo[] = [
     title: '',
     description: '',
     category: ['nature'],
+    order: 20,
   },
 ];
 
