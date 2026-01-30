@@ -47,22 +47,60 @@ export default function AdminPage() {
     setUploading(true);
     setUploadStatus('アップロード中...');
 
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('title', title);
-    formData.append('description', description);
-    formData.append('categories', categories);
-
     try {
-      const response = await fetch('/api/upload', {
-        method: 'POST',
+      // 1. トークンを取得
+      const tokenResponse = await fetch('/api/upload', {
+        method: 'GET',
         headers: {
           'Authorization': `Bearer ${password}`,
         },
-        body: formData,
       });
 
-      if (response.ok) {
+      if (!tokenResponse.ok) {
+        const error = await tokenResponse.json();
+        setUploadStatus(`エラー: ${error.error}`);
+        setUploading(false);
+        return;
+      }
+
+      const { token } = await tokenResponse.json();
+
+      // 2. クライアント側から直接Blobにアップロード
+      const uploadResponse = await fetch(
+        `https://blob.vercel-storage.com/${file.name}?token=${token}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': file.type,
+            'x-vercel-blob-add-random-suffix': '1',
+          },
+          body: file,
+        }
+      );
+
+      if (!uploadResponse.ok) {
+        throw new Error('画像のアップロードに失敗しました');
+      }
+
+      const blobData = await uploadResponse.json();
+      const blobUrl = blobData.url;
+
+      // 3. メタデータを保存
+      const metadataResponse = await fetch('/api/upload', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${password}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          blobUrl,
+          title,
+          description,
+          categories,
+        }),
+      });
+
+      if (metadataResponse.ok) {
         setUploadStatus('✓ アップロード成功！');
         // フォームをリセット
         setFile(null);
@@ -72,10 +110,11 @@ export default function AdminPage() {
         setPreview(null);
         setTimeout(() => setUploadStatus(''), 3000);
       } else {
-        const error = await response.json();
+        const error = await metadataResponse.json();
         setUploadStatus(`エラー: ${error.error}`);
       }
     } catch (error) {
+      console.error('Upload error:', error);
       setUploadStatus('エラー: アップロードに失敗しました');
     } finally {
       setUploading(false);
