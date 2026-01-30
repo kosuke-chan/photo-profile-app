@@ -1,19 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-
-type Photo = {
-  id: number;
-  src: string;
-  title: string;
-  description: string;
-  category: string[];
-};
+import type { Photo } from './types/photo';
 
 const SHOW_TITLES_AND_DESCRIPTIONS = false;
 
-const photos: Photo[] = [
+// 既存の写真データ（フォールバック用）
+const fallbackPhotos: Photo[] = [
   {
     id: 1,
     src: '/DSC04115.jpg',
@@ -70,108 +64,128 @@ const photos: Photo[] = [
     description: 'モノクロの世界に差し込む光と陰。',
     category: ['home'],
   },
-{
-  id: 9,
-  src: '/R0002922-3.jpg',
-  title: '',
-  description: '',
-  category: ['nature'],
-},
-{
-  id: 10,
-  src: '/DSC07148.jpg',
-  title: '',
-  description: '',
-  category: ['nature'],
-},
-{
-  id: 11,
-  src: '/R0000584-2.jpg',
-  title: '',
-  description: '',
-  category: ['nature'],
-},
-{
-  id: 12,
-  src: '/DSC09903.jpg',
-  title: '',
-  description: '',
-  category: ['nature'],
-},
-{
-  id: 13,
-  src: '/R0002946-Edit-3.jpg',
-  title: '',
-  description: '',
-  category: ['nature'],
-},
-{
-  id: 14,
-  src: '/DSC07260-Edit.jpg',
-  title: '',
-  description: '',
-  category: ['nature'],
-},
-{
-  id: 15,
-  src: '/DSC09238-Edit-3.jpg',
-  title: '',
-  description: '',
-  category: ['nature'],
-},
-{
-  id: 16,
-  src: '/DSC03614.jpg',
-  title: '',
-  description: '',
-  category: ['nature'],
-},
-{
-  id: 17,
-  src: '/DSC00324-Edit.jpg',
-  title: '',
-  description: '',
-  category: ['nature'],
-},
-{
-  id: 18,
-  src: '/DSC04869.jpg',
-  title: '',
-  description: '',
-  category: ['nature'],
-},
-{
-  id: 19,
-  src: '/DSC06613-2.jpg',
-  title: '',
-  description: '',
-  category: ['nature'],
-},
-{
-  id: 20,
-  src: '/DSC03627-Edit-4.jpg',
-  title: '',
-  description: '',
-  category: ['nature'],
-},
-{
-  id: 21,
-  src: '/DSC00140-2.jpg',
-  title: '',
-  description: '',
-  category: ['nature'],
-},
-
-
-
+  {
+    id: 9,
+    src: '/R0002922-3.jpg',
+    title: '',
+    description: '',
+    category: ['nature'],
+  },
+  {
+    id: 10,
+    src: '/DSC07148.jpg',
+    title: '',
+    description: '',
+    category: ['nature'],
+  },
+  {
+    id: 11,
+    src: '/R0000584-2.jpg',
+    title: '',
+    description: '',
+    category: ['nature'],
+  },
+  {
+    id: 12,
+    src: '/DSC09903.jpg',
+    title: '',
+    description: '',
+    category: ['nature'],
+  },
+  {
+    id: 13,
+    src: '/R0002946-Edit-3.jpg',
+    title: '',
+    description: '',
+    category: ['nature'],
+  },
+  {
+    id: 14,
+    src: '/DSC07260-Edit.jpg',
+    title: '',
+    description: '',
+    category: ['nature'],
+  },
+  {
+    id: 15,
+    src: '/DSC09238-Edit-3.jpg',
+    title: '',
+    description: '',
+    category: ['nature'],
+  },
+  {
+    id: 16,
+    src: '/DSC03614.jpg',
+    title: '',
+    description: '',
+    category: ['nature'],
+  },
+  {
+    id: 17,
+    src: '/DSC00324-Edit.jpg',
+    title: '',
+    description: '',
+    category: ['nature'],
+  },
+  {
+    id: 18,
+    src: '/DSC04869.jpg',
+    title: '',
+    description: '',
+    category: ['nature'],
+  },
+  {
+    id: 19,
+    src: '/DSC06613-2.jpg',
+    title: '',
+    description: '',
+    category: ['nature'],
+  },
+  {
+    id: 20,
+    src: '/DSC03627-Edit-4.jpg',
+    title: '',
+    description: '',
+    category: ['nature'],
+  },
+  {
+    id: 21,
+    src: '/DSC00140-2.jpg',
+    title: '',
+    description: '',
+    category: ['nature'],
+  },
 ];
 
-const categories = ['all', 'nature', 'monochrome', 'street', 'home'];
-
 export default function Home() {
+  const [photos, setPhotos] = useState<Photo[]>(fallbackPhotos);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [open, setOpen] = useState(false);
   const [index, setIndex] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  // 写真データを取得
+  useEffect(() => {
+    const fetchPhotos = async () => {
+      try {
+        const response = await fetch('/api/photos');
+        const data = await response.json();
+        if (data.length > 0) {
+          setPhotos(data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch photos:', error);
+        // フォールバックデータを使用
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPhotos();
+  }, []);
+
+  // カテゴリを動的に取得
+  const categories = ['all', ...Array.from(new Set(photos.flatMap(p => p.category)))];
 
   const filteredPhotos =
     selectedCategory === 'all'
@@ -190,45 +204,56 @@ export default function Home() {
           </p>
         </header>
 
-        {/* カテゴリ選択 */}
-        <div className="flex justify-center flex-wrap gap-3 mb-10">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              className={`px-4 py-1 rounded-full text-sm border transition ${
-                selectedCategory === cat
-                  ? 'bg-gray-800 text-white'
-                  : 'border-gray-400 text-gray-600 hover:bg-gray-100'
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
+        {/* ローディング表示 */}
+        {loading && (
+          <div className="text-center py-12">
+            <p className="text-gray-500">読み込み中...</p>
+          </div>
+        )}
 
-        {/* 写真ギャラリー */}
-        <section className="space-y-16">
-          {filteredPhotos.map((photo, i) => (
-            <div key={photo.id} className="flex flex-col items-center">
-              <img
-                src={photo.src}
-                alt={photo.title}
-                className="w-full max-w-md mx-auto rounded-lg shadow-md mb-4 cursor-pointer"
-                onClick={() => {
-                  setIndex(i);
-                  setOpen(true);
-                }}
-              />
-              {SHOW_TITLES_AND_DESCRIPTIONS && (
-                <>
-                  <h2 className="text-xl font-serif text-gray-800 mb-1">{photo.title}</h2>
-                  <p className="text-sm text-gray-500">{photo.description}</p>
-                </>
-              )}
+        {!loading && (
+          <>
+            {/* カテゴリ選択 */}
+            <div className="flex justify-center flex-wrap gap-3 mb-10">
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`px-4 py-1 rounded-full text-sm border transition ${
+                    selectedCategory === cat
+                      ? 'bg-gray-800 text-white'
+                      : 'border-gray-400 text-gray-600 hover:bg-gray-100'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
             </div>
-          ))}
-        </section>
+
+            {/* 写真ギャラリー */}
+            <section className="space-y-16">
+              {filteredPhotos.map((photo, i) => (
+                <div key={photo.id} className="flex flex-col items-center">
+                  <img
+                    src={photo.src}
+                    alt={photo.title}
+                    className="w-full max-w-md mx-auto rounded-lg shadow-md mb-4 cursor-pointer"
+                    onClick={() => {
+                      setIndex(i);
+                      setOpen(true);
+                    }}
+                  />
+                  {SHOW_TITLES_AND_DESCRIPTIONS && (
+                    <>
+                      <h2 className="text-xl font-serif text-gray-800 mb-1">{photo.title}</h2>
+                      <p className="text-sm text-gray-500">{photo.description}</p>
+                    </>
+                  )}
+                </div>
+              ))}
+            </section>
+          </>
+        )}
 
         {/* モーダル */}
         <AnimatePresence>
