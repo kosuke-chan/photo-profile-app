@@ -2,6 +2,7 @@
 
 import { useState, FormEvent } from 'react';
 import { motion } from 'framer-motion';
+import { upload } from '@vercel/blob/client';
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -47,22 +48,30 @@ export default function AdminPage() {
     setUploading(true);
     setUploadStatus('アップロード中...');
 
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('title', title);
-    formData.append('description', description);
-    formData.append('categories', categories);
-
     try {
-      const response = await fetch('/api/upload', {
+      // 1. クライアント側から直接Blobにアップロード
+      const newBlob = await upload(file.name, file, {
+        access: 'public',
+        handleUploadUrl: '/api/upload',
+        clientPayload: JSON.stringify({ password }),
+      });
+
+      // 2. メタデータを保存
+      const metadataResponse = await fetch('/api/photos/save', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${password}`,
+          'Content-Type': 'application/json',
         },
-        body: formData,
+        body: JSON.stringify({
+          blobUrl: newBlob.url,
+          title,
+          description,
+          categories,
+        }),
       });
 
-      if (response.ok) {
+      if (metadataResponse.ok) {
         setUploadStatus('✓ アップロード成功！');
         // フォームをリセット
         setFile(null);
@@ -72,7 +81,7 @@ export default function AdminPage() {
         setPreview(null);
         setTimeout(() => setUploadStatus(''), 3000);
       } else {
-        const error = await response.json();
+        const error = await metadataResponse.json();
         setUploadStatus(`エラー: ${error.error}`);
       }
     } catch (error) {
