@@ -53,7 +53,10 @@ export default function AdminPage() {
       const newBlob = await upload(file.name, file, {
         access: 'public',
         handleUploadUrl: '/api/upload',
-        clientPayload: JSON.stringify({ password }),
+        clientPayload: JSON.stringify({}),
+        headers: {
+          'Authorization': `Bearer ${password}`,
+        },
       });
 
       // 2. メタデータを保存
