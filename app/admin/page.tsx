@@ -17,7 +17,6 @@ export default function AdminPage() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<string[]>(['nature']);
-  const [order, setOrder] = useState<number>(0);
   const [uploading, setUploading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState('');
   const [preview, setPreview] = useState<string | null>(null);
@@ -108,7 +107,6 @@ export default function AdminPage() {
           title,
           description,
           categories: selectedCategories.join(','),
-          order,
         }),
       });
 
@@ -120,7 +118,6 @@ export default function AdminPage() {
         setTitle('');
         setDescription('');
         setSelectedCategories(['nature']);
-        setOrder(0);
         setPreview(null);
         setCompressionStatus('');
         setTimeout(() => setUploadStatus(''), 3000);
@@ -240,44 +237,27 @@ export default function AdminPage() {
               />
             </div>
 
-            {/* カテゴリ（チェックボックス） */}
+            {/* カテゴリ（モダンなボタン形式） */}
             <div>
-              <label className="block text-sm text-gray-600 mb-2">
+              <label className="block text-sm text-gray-600 mb-3">
                 カテゴリ（複数選択可）
               </label>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="flex flex-wrap gap-2">
                 {AVAILABLE_CATEGORIES.map((category) => (
-                  <label
+                  <button
                     key={category}
-                    className="flex items-center space-x-2 cursor-pointer"
+                    type="button"
+                    onClick={() => toggleCategory(category)}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                      selectedCategories.includes(category)
+                        ? 'bg-gray-800 text-white shadow-md transform scale-105'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-300'
+                    }`}
                   >
-                    <input
-                      type="checkbox"
-                      checked={selectedCategories.includes(category)}
-                      onChange={() => toggleCategory(category)}
-                      className="w-4 h-4 text-gray-800 border-gray-300 rounded focus:ring-gray-400"
-                    />
-                    <span className="text-sm text-gray-700">{category}</span>
-                  </label>
+                    {category}
+                  </button>
                 ))}
               </div>
-            </div>
-
-            {/* 表示順序 */}
-            <div>
-              <label className="block text-sm text-gray-600 mb-2">
-                表示順序（数字が小さいほど上に表示）
-              </label>
-              <input
-                type="number"
-                value={order}
-                onChange={(e) => setOrder(Number(e.target.value))}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400"
-                placeholder="0"
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                例: 0が最初、1が2番目、2が3番目...
-              </p>
             </div>
 
             {/* アップロードボタン */}
@@ -304,10 +284,16 @@ export default function AdminPage() {
           </form>
 
           {/* トップページへのリンク */}
-          <div className="mt-8 text-center">
+          <div className="mt-8 text-center space-y-2">
+            <a
+              href="/admin/manage"
+              className="block text-gray-600 hover:text-gray-800 underline font-medium"
+            >
+              写真一覧・順序管理
+            </a>
             <a
               href="/"
-              className="text-gray-600 hover:text-gray-800 underline"
+              className="block text-gray-600 hover:text-gray-800 underline"
             >
               ← トップページに戻る
             </a>
