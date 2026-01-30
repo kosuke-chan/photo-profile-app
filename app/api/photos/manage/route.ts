@@ -18,11 +18,20 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: '写真データが必要です' }, { status: 400 });
     }
 
+    // 既存のphotos.jsonを削除
+    const { blobs } = await list({ prefix: 'photos.json' });
+    if (blobs.length > 0) {
+      try {
+        await del(blobs[0].url);
+      } catch (error) {
+        console.error('Failed to delete old photos.json:', error);
+      }
+    }
+
     // 更新された写真データをBlobに保存
     await put('photos.json', JSON.stringify(photos, null, 2), {
       access: 'public',
       contentType: 'application/json',
-      addRandomSuffix: false,
     });
 
     return NextResponse.json({ success: true });
@@ -62,6 +71,15 @@ export async function DELETE(request: NextRequest) {
     // 写真を削除
     photos = photos.filter((p: any) => p.id !== Number(photoId));
 
+    // 既存のphotos.jsonを削除
+    if (blobs.length > 0) {
+      try {
+        await del(blobs[0].url);
+      } catch (error) {
+        console.error('Failed to delete old photos.json:', error);
+      }
+    }
+
     // Blobから画像も削除（オプション）
     if (blobUrl) {
       try {
@@ -75,7 +93,6 @@ export async function DELETE(request: NextRequest) {
     await put('photos.json', JSON.stringify(photos, null, 2), {
       access: 'public',
       contentType: 'application/json',
-      addRandomSuffix: false,
     });
 
     return NextResponse.json({ success: true });

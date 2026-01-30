@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { put, list } from '@vercel/blob';
+import { put, list, del } from '@vercel/blob';
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,6 +25,13 @@ export async function POST(request: NextRequest) {
     if (blobs.length > 0) {
       const response = await fetch(blobs[0].url);
       photos = await response.json();
+      
+      // 既存のphotos.jsonを削除
+      try {
+        await del(blobs[0].url);
+      } catch (error) {
+        console.error('Failed to delete old photos.json:', error);
+      }
     }
 
     // 新しい写真を追加（orderは自動的に最後に）
@@ -44,7 +51,6 @@ export async function POST(request: NextRequest) {
     await put('photos.json', JSON.stringify(photos, null, 2), {
       access: 'public',
       contentType: 'application/json',
-      addRandomSuffix: false,
     });
 
     return NextResponse.json({ success: true, photo: newPhoto });
