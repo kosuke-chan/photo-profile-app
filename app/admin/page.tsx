@@ -85,8 +85,13 @@ export default function AdminPage() {
     setUploadStatus('アップロード中...');
 
     try {
+      // ファイル名にタイムスタンプを追加してユニークにする
+      const timestamp = Date.now();
+      const fileExtension = compressedFile.name.split('.').pop();
+      const uniqueFileName = `${timestamp}-${Math.random().toString(36).substring(7)}.${fileExtension}`;
+      
       // 1. クライアント側から直接Blobにアップロード
-      const newBlob = await upload(compressedFile.name, compressedFile, {
+      const newBlob = await upload(uniqueFileName, compressedFile, {
         access: 'public',
         handleUploadUrl: '/api/upload',
         clientPayload: JSON.stringify({}),
