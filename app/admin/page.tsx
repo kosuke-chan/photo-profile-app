@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { upload } from '@vercel/blob/client';
 import imageCompression from 'browser-image-compression';
@@ -22,15 +22,21 @@ export default function AdminPage() {
   const [preview, setPreview] = useState<string | null>(null);
   const [compressionStatus, setCompressionStatus] = useState('');
 
+  // セッションストレージから認証状態を復元
+  useEffect(() => {
+    const savedPassword = sessionStorage.getItem('adminPassword');
+    if (savedPassword) {
+      setPassword(savedPassword);
+      setIsAuthenticated(true);
+    }
+  }, []);
+
   const handleLogin = (e: FormEvent) => {
     e.preventDefault();
-    // 簡易的な認証チェック（実際の認証はAPI側で行う）
-    if (password) {
-      setIsAuthenticated(true);
-      setAuthError('');
-    } else {
-      setAuthError('パスワードを入力してください');
-    }
+    // パスワードをセッションストレージに保存
+    sessionStorage.setItem('adminPassword', password);
+    setIsAuthenticated(true);
+    setAuthError('');
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -136,7 +142,15 @@ export default function AdminPage() {
         setTimeout(() => setUploadStatus(''), 3000);
       } else {
         const error = await metadataResponse.json();
-        setUploadStatus(`エラー: ${error.error}`);
+        if (metadataResponse.status === 401) {
+          setUploadStatus('エラー: パスワードが正しくありません');
+          // 認証をリセット
+          sessionStorage.removeItem('adminPassword');
+          setIsAuthenticated(false);
+          setPassword('');
+        } else {
+          setUploadStatus(`エラー: ${error.error}`);
+        }
       }
     } catch (error) {
       console.error('Upload error:', error);

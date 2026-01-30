@@ -74,7 +74,16 @@ export default function ManagePhotosPage() {
         setMessage('✓ 順序を保存しました');
         setTimeout(() => setMessage(''), 3000);
       } else {
-        setMessage('エラー: 保存に失敗しました');
+        if (response.status === 401) {
+          setMessage('エラー: パスワードが正しくありません');
+          // 認証をリセット
+          sessionStorage.removeItem('adminPassword');
+          setTimeout(() => {
+            window.location.href = '/admin/manage';
+          }, 2000);
+        } else {
+          setMessage('エラー: 保存に失敗しました');
+        }
       }
     } catch (error) {
       setMessage('エラー: 保存に失敗しました');
@@ -104,7 +113,16 @@ export default function ManagePhotosPage() {
         setMessage('✓ 削除しました');
         setTimeout(() => setMessage(''), 3000);
       } else {
-        setMessage('エラー: 削除に失敗しました');
+        if (response.status === 401) {
+          setMessage('エラー: パスワードが正しくありません');
+          // 認証をリセット
+          sessionStorage.removeItem('adminPassword');
+          setTimeout(() => {
+            window.location.href = '/admin/manage';
+          }, 2000);
+        } else {
+          setMessage('エラー: 削除に失敗しました');
+        }
       }
     } catch (error) {
       setMessage('エラー: 削除に失敗しました');
