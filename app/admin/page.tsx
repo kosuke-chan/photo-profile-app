@@ -25,7 +25,6 @@ export default function AdminPage() {
   // セッションストレージから認証状態を復元
   useEffect(() => {
     const savedPassword = sessionStorage.getItem('adminPassword');
-    console.log('Saved password from session:', savedPassword); // デバッグ用
     if (savedPassword) {
       setPassword(savedPassword);
       setIsAuthenticated(true);
@@ -42,7 +41,6 @@ export default function AdminPage() {
     sessionStorage.setItem('adminPassword', password);
     setIsAuthenticated(true);
     setAuthError('');
-    console.log('Password saved:', password); // デバッグ用
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -100,8 +98,6 @@ export default function AdminPage() {
   const handleUpload = async (e: FormEvent) => {
     e.preventDefault();
     if (!compressedFile) return;
-
-    console.log('Uploading with password:', password); // デバッグ用
 
     setUploading(true);
     setUploadStatus('アップロード中...');
