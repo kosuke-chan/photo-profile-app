@@ -14,7 +14,10 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "xxx tk xxx - Photo Gallery",
-  description: "写真家 xxx tk xxx のポートフォリオサイト",
+  description: "写真家 xxx tk xxx のポートフォリオサイト。日々の中にある光、静けさ、生活の欠片を切り取っています。",
+  icons: {
+    icon: '/icon.svg',
+  },
 };
 
 export default function RootLayout({

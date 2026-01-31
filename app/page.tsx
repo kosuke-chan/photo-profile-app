@@ -277,7 +277,7 @@ export default function Home() {
                     src={photo.thumbnail || photo.src}
                     alt={photo.title}
                     loading="lazy"
-                    className="w-full max-w-md mx-auto rounded-lg shadow-md mb-4 cursor-pointer transition-transform hover:scale-105"
+                    className="w-full max-w-md mx-auto rounded-lg shadow-md mb-4 cursor-pointer transition-all duration-500 ease-out hover:shadow-2xl hover:scale-[1.02]"
                     style={{ maxHeight: '600px', objectFit: 'contain' }}
                     onClick={() => {
                       setIndex(filteredPhotos.findIndex(p => p.id === photo.id));
