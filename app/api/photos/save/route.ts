@@ -8,6 +8,7 @@ export async function POST(request: NextRequest) {
     const password = authHeader?.replace('Bearer ', '');
     
     if (password !== process.env.ADMIN_PASSWORD) {
+      console.error('Authentication failed');
       return NextResponse.json({ error: '認証エラー' }, { status: 401 });
     }
 
@@ -15,8 +16,11 @@ export async function POST(request: NextRequest) {
     const { blobUrl, thumbnailUrl, title, description, categories } = body;
 
     if (!blobUrl) {
+      console.error('Missing blobUrl');
       return NextResponse.json({ error: 'Blob URLが必要です' }, { status: 400 });
     }
+
+    console.log('Saving photo metadata:', { blobUrl, thumbnailUrl, title, categories });
 
     // 既存の写真データを取得
     const { blobs } = await list({ prefix: 'photos.json' });
@@ -29,6 +33,7 @@ export async function POST(request: NextRequest) {
       // 既存のphotos.jsonを削除
       try {
         await del(blobs[0].url);
+        console.log('Deleted old photos.json');
       } catch (error) {
         console.error('Failed to delete old photos.json:', error);
       }
@@ -48,15 +53,23 @@ export async function POST(request: NextRequest) {
 
     photos.push(newPhoto);
 
+    console.log('New photo:', newPhoto);
+    console.log('Total photos:', photos.length);
+
     // 更新された写真データをBlobに保存
-    await put('photos.json', JSON.stringify(photos, null, 2), {
+    const savedBlob = await put('photos.json', JSON.stringify(photos, null, 2), {
       access: 'public',
       contentType: 'application/json',
     });
 
+    console.log('Saved photos.json:', savedBlob.url);
+
     return NextResponse.json({ success: true, photo: newPhoto });
   } catch (error) {
     console.error('Save metadata error:', error);
-    return NextResponse.json({ error: 'メタデータの保存に失敗しました' }, { status: 500 });
+    return NextResponse.json({ 
+      error: 'メタデータの保存に失敗しました',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 });
   }
 }

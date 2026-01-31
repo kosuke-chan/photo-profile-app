@@ -122,24 +122,40 @@ export default function AdminPage() {
       setUploadStatus('画像をアップロード中...');
       
       // 1. フルサイズ画像をアップロード
-      const newBlob = await upload(uniqueFileName, compressedFile, {
-        access: 'public',
-        handleUploadUrl: '/api/upload',
-        clientPayload: JSON.stringify({}),
-        headers: {
-          'Authorization': `Bearer ${password}`,
-        },
-      });
+      let newBlob;
+      try {
+        newBlob = await upload(uniqueFileName, compressedFile, {
+          access: 'public',
+          handleUploadUrl: '/api/upload',
+          clientPayload: JSON.stringify({}),
+          headers: {
+            'Authorization': `Bearer ${password}`,
+          },
+        });
+      } catch (error) {
+        console.error('Full size upload error:', error);
+        setUploadStatus('エラー: フルサイズ画像のアップロードに失敗しました');
+        setUploading(false);
+        return;
+      }
 
       // 2. サムネイルをアップロード
-      const thumbnailBlob = await upload(thumbnailFileName, thumbnail, {
-        access: 'public',
-        handleUploadUrl: '/api/upload',
-        clientPayload: JSON.stringify({}),
-        headers: {
-          'Authorization': `Bearer ${password}`,
-        },
-      });
+      let thumbnailBlob;
+      try {
+        thumbnailBlob = await upload(thumbnailFileName, thumbnail, {
+          access: 'public',
+          handleUploadUrl: '/api/upload',
+          clientPayload: JSON.stringify({}),
+          headers: {
+            'Authorization': `Bearer ${password}`,
+          },
+        });
+      } catch (error) {
+        console.error('Thumbnail upload error:', error);
+        setUploadStatus('エラー: サムネイルのアップロードに失敗しました');
+        setUploading(false);
+        return;
+      }
 
       setUploadStatus('メタデータを保存中...');
 
@@ -160,6 +176,8 @@ export default function AdminPage() {
       });
 
       if (metadataResponse.ok) {
+        const result = await metadataResponse.json();
+        console.log('Upload success:', result);
         setUploadStatus('✓ アップロード成功！');
         // フォームをリセット
         setFile(null);
@@ -172,6 +190,7 @@ export default function AdminPage() {
         setTimeout(() => setUploadStatus(''), 3000);
       } else {
         const error = await metadataResponse.json();
+        console.error('Metadata save error:', error);
         if (metadataResponse.status === 401) {
           setUploadStatus('エラー: パスワードが正しくありません');
           // 認証をリセット
@@ -179,12 +198,12 @@ export default function AdminPage() {
           setIsAuthenticated(false);
           setPassword('');
         } else {
-          setUploadStatus(`エラー: ${error.error}`);
+          setUploadStatus(`エラー: メタデータの保存に失敗しました - ${error.error || 'Unknown error'}`);
         }
       }
     } catch (error) {
       console.error('Upload error:', error);
-      setUploadStatus('エラー: アップロードに失敗しました');
+      setUploadStatus(`エラー: ${error instanceof Error ? error.message : 'アップロードに失敗しました'}`);
     } finally {
       setUploading(false);
     }
