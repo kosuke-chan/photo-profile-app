@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { blobUrl, title, description, categories } = body;
+    const { blobUrl, thumbnailUrl, title, description, categories } = body;
 
     if (!blobUrl) {
       return NextResponse.json({ error: 'Blob URLが必要です' }, { status: 400 });
@@ -39,6 +39,7 @@ export async function POST(request: NextRequest) {
     const newPhoto = {
       id: photos.length > 0 ? Math.max(...photos.map((p: any) => p.id)) + 1 : 1,
       src: blobUrl,
+      thumbnail: thumbnailUrl || blobUrl,
       title: title || '',
       description: description || '',
       category: categories ? categories.split(',').map((c: string) => c.trim()) : ['nature'],

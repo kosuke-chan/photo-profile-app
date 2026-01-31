@@ -184,6 +184,7 @@ export default function Home() {
   const [open, setOpen] = useState(false);
   const [index, setIndex] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [displayCount, setDisplayCount] = useState(10); // 表示する写真の数
 
   // 写真データを取得
   useEffect(() => {
@@ -219,6 +220,14 @@ export default function Home() {
       ? photos
       : photos.filter((p) => p.category.includes(selectedCategory));
 
+  // 表示する写真（ページネーション）
+  const displayedPhotos = filteredPhotos.slice(0, displayCount);
+  const hasMore = filteredPhotos.length > displayCount;
+
+  const loadMore = () => {
+    setDisplayCount(prev => prev + 10);
+  };
+
   return (
     <div className="relative min-h-screen pb-20">
       <main className="py-12 px-6 max-w-3xl mx-auto">
@@ -245,7 +254,10 @@ export default function Home() {
               {categories.map((cat) => (
                 <button
                   key={cat}
-                  onClick={() => setSelectedCategory(cat)}
+                  onClick={() => {
+                    setSelectedCategory(cat);
+                    setDisplayCount(10); // カテゴリ変更時にリセット
+                  }}
                   className={`px-4 py-1 rounded-full text-sm border transition ${
                     selectedCategory === cat
                       ? 'bg-gray-800 text-white'
@@ -259,16 +271,16 @@ export default function Home() {
 
             {/* 写真ギャラリー */}
             <section className="space-y-16">
-              {filteredPhotos.map((photo, i) => (
+              {displayedPhotos.map((photo, i) => (
                 <div key={photo.id} className="flex flex-col items-center">
                   <img
-                    src={photo.src}
+                    src={photo.thumbnail || photo.src}
                     alt={photo.title}
                     loading="lazy"
-                    className="w-full max-w-md mx-auto rounded-lg shadow-md mb-4 cursor-pointer"
+                    className="w-full max-w-md mx-auto rounded-lg shadow-md mb-4 cursor-pointer transition-transform hover:scale-105"
                     style={{ maxHeight: '600px', objectFit: 'contain' }}
                     onClick={() => {
-                      setIndex(i);
+                      setIndex(filteredPhotos.findIndex(p => p.id === photo.id));
                       setOpen(true);
                     }}
                   />
@@ -281,6 +293,18 @@ export default function Home() {
                 </div>
               ))}
             </section>
+
+            {/* もっと見るボタン */}
+            {hasMore && (
+              <div className="mt-12 text-center">
+                <button
+                  onClick={loadMore}
+                  className="px-8 py-3 bg-gray-800 text-white rounded-full hover:bg-gray-700 transition-all hover:shadow-lg"
+                >
+                  more...
+                </button>
+              </div>
+            )}
           </>
         )}
 

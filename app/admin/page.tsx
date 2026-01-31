@@ -103,12 +103,25 @@ export default function AdminPage() {
     setUploadStatus('アップロード中...');
 
     try {
+      // サムネイルを生成（最大幅800px）
+      setUploadStatus('サムネイルを生成中...');
+      const thumbnailOptions = {
+        maxSizeMB: 0.5,
+        maxWidthOrHeight: 800,
+        useWebWorker: true,
+        fileType: compressedFile.type,
+      };
+      const thumbnail = await imageCompression(compressedFile, thumbnailOptions);
+
       // ファイル名にタイムスタンプを追加してユニークにする
       const timestamp = Date.now();
       const fileExtension = compressedFile.name.split('.').pop();
       const uniqueFileName = `${timestamp}-${Math.random().toString(36).substring(7)}.${fileExtension}`;
+      const thumbnailFileName = `thumb-${uniqueFileName}`;
       
-      // 1. クライアント側から直接Blobにアップロード
+      setUploadStatus('画像をアップロード中...');
+      
+      // 1. フルサイズ画像をアップロード
       const newBlob = await upload(uniqueFileName, compressedFile, {
         access: 'public',
         handleUploadUrl: '/api/upload',
@@ -118,7 +131,19 @@ export default function AdminPage() {
         },
       });
 
-      // 2. メタデータを保存
+      // 2. サムネイルをアップロード
+      const thumbnailBlob = await upload(thumbnailFileName, thumbnail, {
+        access: 'public',
+        handleUploadUrl: '/api/upload',
+        clientPayload: JSON.stringify({}),
+        headers: {
+          'Authorization': `Bearer ${password}`,
+        },
+      });
+
+      setUploadStatus('メタデータを保存中...');
+
+      // 3. メタデータを保存
       const metadataResponse = await fetch('/api/photos/save', {
         method: 'POST',
         headers: {
@@ -127,6 +152,7 @@ export default function AdminPage() {
         },
         body: JSON.stringify({
           blobUrl: newBlob.url,
+          thumbnailUrl: thumbnailBlob.url,
           title,
           description,
           categories: selectedCategories.join(','),
