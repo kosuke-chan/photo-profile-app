@@ -36,11 +36,28 @@ export default function ManagePhotosPage() {
     }
   }, []);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    sessionStorage.setItem('adminPassword', password);
-    setIsAuthenticated(true);
-    fetchPhotos(password);
+    
+    try {
+      const response = await fetch('/api/auth/verify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ password }),
+      });
+
+      if (response.ok) {
+        sessionStorage.setItem('adminPassword', password);
+        setIsAuthenticated(true);
+        fetchPhotos(password);
+      } else {
+        alert('パスワードが正しくありません');
+      }
+    } catch (error) {
+      alert('認証エラーが発生しました');
+    }
   };
 
   const fetchPhotos = async (pwd: string) => {

@@ -31,16 +31,33 @@ export default function AdminPage() {
     }
   }, []);
 
-  const handleLogin = (e: FormEvent) => {
+  const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
     if (!password) {
       setAuthError('パスワードを入力してください');
       return;
     }
-    // パスワードをセッションストレージに保存
-    sessionStorage.setItem('adminPassword', password);
-    setIsAuthenticated(true);
-    setAuthError('');
+
+    try {
+      const response = await fetch('/api/auth/verify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ password }),
+      });
+
+      if (response.ok) {
+        // パスワードが正しい場合のみセッションストレージに保存
+        sessionStorage.setItem('adminPassword', password);
+        setIsAuthenticated(true);
+        setAuthError('');
+      } else {
+        setAuthError('パスワードが正しくありません');
+      }
+    } catch (error) {
+      setAuthError('認証エラーが発生しました');
+    }
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {

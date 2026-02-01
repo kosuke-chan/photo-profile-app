@@ -278,7 +278,7 @@ export default function Home() {
                       src={photo.thumbnail || photo.src}
                       alt={photo.title}
                       loading="lazy"
-                      className="w-full max-w-md mx-auto rounded-lg cursor-pointer transition-all duration-700 ease-out shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:shadow-[0_20px_60px_rgb(0,0,0,0.2)] hover:-translate-y-2"
+                      className="w-full max-w-md mx-auto rounded-lg cursor-pointer transition-all duration-700 ease-out shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:shadow-[0_20px_60px_rgb(0,0,0,0.2)] hover:scale-[1.02]"
                       style={{ maxHeight: '600px', objectFit: 'contain' }}
                       onClick={() => {
                         setIndex(filteredPhotos.findIndex(p => p.id === photo.id));
