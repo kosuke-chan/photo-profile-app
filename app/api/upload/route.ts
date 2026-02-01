@@ -2,27 +2,31 @@ import { NextRequest, NextResponse } from 'next/server';
 import { handleUpload, type HandleUploadBody } from '@vercel/blob/client';
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  const body = (await request.json()) as HandleUploadBody;
-
   try {
+    // 事前に認証チェック
+    const authHeader = request.headers.get('authorization');
+    const password = authHeader?.replace('Bearer ', '');
+    
+    if (password !== process.env.ADMIN_PASSWORD) {
+      console.error('Authentication failed in upload API');
+      return NextResponse.json({ error: '認証エラー' }, { status: 401 });
+    }
+
+    const body = (await request.json()) as HandleUploadBody;
+
     const jsonResponse = await handleUpload({
       body,
       request,
       onBeforeGenerateToken: async (pathname) => {
-        // 認証チェック
-        const authHeader = request.headers.get('authorization');
-        const password = authHeader?.replace('Bearer ', '');
-        
-        if (password !== process.env.ADMIN_PASSWORD) {
-          throw new Error('認証エラー');
-        }
-
+        // 認証は既に通過しているので、トークンを生成
         return {
           allowedContentTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/jpg'],
           tokenPayload: JSON.stringify({}),
         };
       },
-      onUploadCompleted: async () => {},
+      onUploadCompleted: async () => {
+        console.log('Upload completed:', pathname);
+      },
     });
 
     return NextResponse.json(jsonResponse);
