@@ -19,13 +19,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       request,
       onBeforeGenerateToken: async (pathname) => {
         // 認証は既に通過しているので、トークンを生成
+        console.log('Generating token for:', pathname);
         return {
           allowedContentTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/jpg'],
           tokenPayload: JSON.stringify({}),
         };
       },
-      onUploadCompleted: async () => {
-        console.log('Upload completed:', pathname);
+      onUploadCompleted: async ({ blob }) => {
+        console.log('Upload completed:', blob.url);
       },
     });
 
