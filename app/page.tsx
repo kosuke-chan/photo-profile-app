@@ -273,20 +273,32 @@ export default function Home() {
             <section className="space-y-16">
               {displayedPhotos.map((photo, i) => (
                 <div key={photo.id} className="flex flex-col items-center">
-                  <img
-                    src={photo.thumbnail || photo.src}
-                    alt={photo.title}
-                    loading="lazy"
-                    className="w-full max-w-md mx-auto rounded-lg shadow-md mb-4 cursor-pointer transition-all duration-500 ease-out hover:shadow-2xl hover:scale-[1.02]"
-                    style={{ maxHeight: '600px', objectFit: 'contain' }}
-                    onClick={() => {
-                      setIndex(filteredPhotos.findIndex(p => p.id === photo.id));
-                      setOpen(true);
-                    }}
-                  />
+                  <div className="relative group">
+                    {/* 額縁効果 */}
+                    <div className="absolute -inset-4 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg shadow-2xl"></div>
+                    
+                    {/* 写真 */}
+                    <div className="relative bg-white p-3 rounded-lg">
+                      <img
+                        src={photo.thumbnail || photo.src}
+                        alt={photo.title}
+                        loading="lazy"
+                        className="w-full max-w-md mx-auto rounded cursor-pointer transition-all duration-500 ease-out group-hover:scale-[1.01]"
+                        style={{ maxHeight: '600px', objectFit: 'contain' }}
+                        onClick={() => {
+                          setIndex(filteredPhotos.findIndex(p => p.id === photo.id));
+                          setOpen(true);
+                        }}
+                      />
+                    </div>
+                    
+                    {/* ホバー時の影の強調 */}
+                    <div className="absolute -inset-4 bg-gradient-to-br from-gray-200 to-gray-300 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 blur-xl"></div>
+                  </div>
+                  
                   {SHOW_TITLES_AND_DESCRIPTIONS && (
                     <>
-                      <h2 className="text-xl font-serif text-gray-800 mb-1">{photo.title}</h2>
+                      <h2 className="text-xl font-serif text-gray-800 mb-1 mt-6">{photo.title}</h2>
                       <p className="text-sm text-gray-500">{photo.description}</p>
                     </>
                   )}
