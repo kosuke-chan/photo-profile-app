@@ -11,6 +11,18 @@ export default function ManagePhotosPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editForm, setEditForm] = useState<{
+    title: string;
+    description: string;
+    categories: string[];
+  }>({
+    title: '',
+    description: '',
+    categories: [],
+  });
+
+  const AVAILABLE_CATEGORIES = ['nature', 'monochrome', 'street', 'home', 'portrait', 'landscape'];
 
   useEffect(() => {
     // セッションストレージから認証状態を確認
@@ -129,6 +141,59 @@ export default function ManagePhotosPage() {
     }
   };
 
+  const startEdit = (photo: Photo) => {
+    setEditingId(photo.id);
+    setEditForm({
+      title: photo.title,
+      description: photo.description,
+      categories: photo.category,
+    });
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditForm({ title: '', description: '', categories: [] });
+  };
+
+  const toggleCategory = (category: string) => {
+    setEditForm(prev => ({
+      ...prev,
+      categories: prev.categories.includes(category)
+        ? prev.categories.filter(c => c !== category)
+        : [...prev.categories, category],
+    }));
+  };
+
+  const saveEdit = async (photoId: number) => {
+    try {
+      const updatedPhotos = photos.map(p =>
+        p.id === photoId
+          ? { ...p, title: editForm.title, description: editForm.description, category: editForm.categories }
+          : p
+      );
+
+      const response = await fetch('/api/photos/manage', {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${password}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ photos: updatedPhotos }),
+      });
+
+      if (response.ok) {
+        setPhotos(updatedPhotos);
+        setEditingId(null);
+        setMessage('✓ 更新しました');
+        setTimeout(() => setMessage(''), 3000);
+      } else {
+        setMessage('エラー: 更新に失敗しました');
+      }
+    } catch (error) {
+      setMessage('エラー: 更新に失敗しました');
+    }
+  };
+
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -218,32 +283,109 @@ export default function ManagePhotosPage() {
                 value={photo}
                 className="bg-white border border-gray-200 rounded-lg p-4 cursor-move hover:shadow-md transition"
               >
-                <div className="flex items-center gap-4">
-                  <div className="flex-shrink-0">
-                    <img
-                      src={photo.src}
-                      alt={photo.title}
-                      className="w-24 h-24 object-cover rounded"
-                    />
+                {editingId === photo.id ? (
+                  // 編集モード
+                  <div className="space-y-4">
+                    <div className="flex items-start gap-4">
+                      <div className="flex-shrink-0">
+                        <img
+                          src={photo.thumbnail || photo.src}
+                          alt={photo.title}
+                          className="w-24 h-24 object-cover rounded"
+                        />
+                      </div>
+                      <div className="flex-grow space-y-3">
+                        <div>
+                          <label className="block text-sm text-gray-600 mb-1">タイトル</label>
+                          <input
+                            type="text"
+                            value={editForm.title}
+                            onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm text-gray-600 mb-1">説明</label>
+                          <textarea
+                            value={editForm.description}
+                            onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400"
+                            rows={2}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm text-gray-600 mb-2">カテゴリ</label>
+                          <div className="flex flex-wrap gap-2">
+                            {AVAILABLE_CATEGORIES.map((category) => (
+                              <button
+                                key={category}
+                                type="button"
+                                onClick={() => toggleCategory(category)}
+                                className={`px-3 py-1 rounded-full text-sm font-medium transition-all duration-200 ${
+                                  editForm.categories.includes(category)
+                                    ? 'bg-gray-800 text-white shadow-md'
+                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-300'
+                                }`}
+                              >
+                                {category}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex justify-end gap-2">
+                      <button
+                        onClick={cancelEdit}
+                        className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
+                      >
+                        キャンセル
+                      </button>
+                      <button
+                        onClick={() => saveEdit(photo.id)}
+                        className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+                      >
+                        保存
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex-grow">
-                    <h3 className="font-medium text-gray-800">
-                      {photo.title || '（タイトルなし）'}
-                    </h3>
-                    <p className="text-sm text-gray-500 mt-1">
-                      {photo.category.join(', ')}
-                    </p>
-                    {photo.description && (
-                      <p className="text-sm text-gray-600 mt-1">{photo.description}</p>
-                    )}
+                ) : (
+                  // 表示モード
+                  <div className="flex items-center gap-4">
+                    <div className="flex-shrink-0">
+                      <img
+                        src={photo.thumbnail || photo.src}
+                        alt={photo.title}
+                        className="w-24 h-24 object-cover rounded"
+                      />
+                    </div>
+                    <div className="flex-grow">
+                      <h3 className="font-medium text-gray-800">
+                        {photo.title || '（タイトルなし）'}
+                      </h3>
+                      <p className="text-sm text-gray-500 mt-1">
+                        {photo.category.join(', ')}
+                      </p>
+                      {photo.description && (
+                        <p className="text-sm text-gray-600 mt-1">{photo.description}</p>
+                      )}
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => startEdit(photo)}
+                        className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+                      >
+                        編集
+                      </button>
+                      <button
+                        onClick={() => handleDelete(photo)}
+                        className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+                      >
+                        削除
+                      </button>
+                    </div>
                   </div>
-                  <button
-                    onClick={() => handleDelete(photo)}
-                    className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
-                  >
-                    削除
-                  </button>
-                </div>
+                )}
               </Reorder.Item>
             ))}
           </Reorder.Group>
