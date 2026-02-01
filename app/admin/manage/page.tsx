@@ -337,13 +337,13 @@ export default function ManagePhotosPage() {
                     <div className="flex justify-end gap-2">
                       <button
                         onClick={cancelEdit}
-                        className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
+                        className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition border border-gray-300"
                       >
                         キャンセル
                       </button>
                       <button
                         onClick={() => saveEdit(photo.id)}
-                        className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+                        className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition"
                       >
                         保存
                       </button>
@@ -373,7 +373,7 @@ export default function ManagePhotosPage() {
                     <div className="flex gap-2">
                       <button
                         onClick={() => startEdit(photo)}
-                        className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+                        className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition"
                       >
                         編集
                       </button>
