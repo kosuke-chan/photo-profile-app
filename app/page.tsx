@@ -250,7 +250,7 @@ export default function Home() {
         {!loading && (
           <>
             {/* カテゴリ選択 */}
-            <div className="flex justify-center flex-wrap gap-3 mb-10">
+            <div className="flex justify-center flex-wrap gap-3 mb-16">
               {categories.map((cat) => (
                 <button
                   key={cat}
@@ -270,7 +270,7 @@ export default function Home() {
             </div>
 
             {/* 写真ギャラリー */}
-            <section className="space-y-16">
+            <section className="space-y-24">
               {displayedPhotos.map((photo, i) => (
                 <div key={photo.id} className="flex flex-col items-center">
                   <div className="relative group">
@@ -278,8 +278,19 @@ export default function Home() {
                       src={photo.thumbnail || photo.src}
                       alt={photo.title}
                       loading="lazy"
-                      className="w-full max-w-md mx-auto cursor-pointer transition-all duration-700 ease-out shadow-[0_30px_80px_rgb(0,0,0,0.35)] hover:shadow-[0_45px_110px_rgb(0,0,0,0.45)] hover:scale-[1.02]"
-                      style={{ maxHeight: '600px', objectFit: 'contain' }}
+                      className="w-full mx-auto cursor-pointer transition-all duration-700 ease-out hover:scale-[1.02]"
+                      style={{ 
+                        maxWidth: '600px',
+                        maxHeight: '720px', 
+                        objectFit: 'contain',
+                        boxShadow: '0 25px 50px rgba(0, 0, 0, 0.25), 0 40px 100px rgba(0, 0, 0, 0.3)',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.boxShadow = '0 30px 60px rgba(0, 0, 0, 0.3), 0 60px 140px rgba(0, 0, 0, 0.35)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.boxShadow = '0 25px 50px rgba(0, 0, 0, 0.25), 0 40px 100px rgba(0, 0, 0, 0.3)';
+                      }}
                       onClick={() => {
                         setIndex(filteredPhotos.findIndex(p => p.id === photo.id));
                         setOpen(true);
@@ -323,17 +334,44 @@ export default function Home() {
               className="fixed inset-0 z-50 flex items-center justify-center origin-left bg-white bg-opacity-95"
               onClick={() => setOpen(false)}
             >
+              {/* 上からのふわっとした光 */}
+              <div className="absolute inset-0 pointer-events-none">
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.3, duration: 1 }}
+                  className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[800px]"
+                  style={{
+                    background: 'radial-gradient(ellipse at top, rgba(255, 248, 220, 0.4) 0%, rgba(255, 248, 220, 0.2) 30%, transparent 70%)',
+                  }}
+                ></motion.div>
+              </div>
+
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.4, duration: 0.6 }}
-                className="text-center"
+                className="text-center relative z-20"
               >
-                <img
-                  src={filteredPhotos[index].src}
-                  alt={filteredPhotos[index].title}
-                  className="max-w-3xl w-full mb-4 rounded shadow-lg"
-                />
+                {/* 写真の周りの光 */}
+                <div className="relative inline-block">
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.5, duration: 1.2 }}
+                    className="absolute -inset-8 bg-gradient-radial from-yellow-100/40 via-yellow-50/20 to-transparent blur-2xl"
+                  ></motion.div>
+                  
+                  <img
+                    src={filteredPhotos[index].src}
+                    alt={filteredPhotos[index].title}
+                    className="max-w-3xl w-full mb-4 shadow-2xl relative z-10"
+                    style={{
+                      filter: 'brightness(1.1) contrast(1.05)',
+                    }}
+                  />
+                </div>
+                
                 {SHOW_TITLES_AND_DESCRIPTIONS && (
                   <h2 className="text-xl font-serif text-gray-800">
                     {filteredPhotos[index].title}
