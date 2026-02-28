@@ -362,10 +362,13 @@ export default function Home() {
                     className="absolute -inset-8 bg-gradient-radial from-yellow-100/40 via-yellow-50/20 to-transparent blur-2xl"
                   ></motion.div>
                   
-                  <img
+                  <motion.img
                     src={filteredPhotos[index].src}
                     alt={filteredPhotos[index].title}
-                    className="w-full mb-4 shadow-2xl relative z-10"
+                    initial={{ boxShadow: '0 25px 50px rgba(0, 0, 0, 0.25), 0 40px 100px rgba(0, 0, 0, 0.3)' }}
+                    animate={{ boxShadow: '0 30px 60px rgba(0, 0, 0, 0.3), 0 60px 140px rgba(0, 0, 0, 0.35)' }}
+                    transition={{ delay: 0.6, duration: 0.8 }}
+                    className="w-full mb-4 relative z-10"
                     style={{
                       maxWidth: '1300px',
                       filter: 'brightness(1.1) contrast(1.05)',
