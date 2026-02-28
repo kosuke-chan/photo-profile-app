@@ -365,8 +365,9 @@ export default function Home() {
                   <img
                     src={filteredPhotos[index].src}
                     alt={filteredPhotos[index].title}
-                    className="max-w-3xl w-full mb-4 shadow-2xl relative z-10"
+                    className="w-full mb-4 shadow-2xl relative z-10"
                     style={{
+                      maxWidth: '1300px',
                       filter: 'brightness(1.1) contrast(1.05)',
                     }}
                   />
